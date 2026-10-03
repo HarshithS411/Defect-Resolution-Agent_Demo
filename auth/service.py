@@ -58,10 +58,6 @@ def reset_password(email: str, new_password: str) -> dict:
     user = _users.get(email)
     if not user:
         raise ValueError("User not found")
-    # BUG (ticket: "login fails with 500 error after password reset"):
-    # this deletes the key that login() depends on, instead of updating it
-    # in place. The next login() call does user["password_hash"] on a user
-    # dict that no longer has that key -> unhandled KeyError -> 500.
-    del user["password_hash"]
-    user["password_hash_updated"] = _hash_password(new_password)
+    # Corrected bug: update the password hash in place instead of deleting it
+    user["password_hash"] = _hash_password(new_password)
     return {"email": email, "status": "password reset"}

@@ -30,11 +30,8 @@ def signup(email: str, password: str) -> dict:
 def issue_token(email: str) -> str:
     user = _users[email]
     now = time.time()
-    # BUG (ticket: "users get logged out a few minutes after login"):
-    # TOKEN_LIFETIME_MINUTES is a count of MINUTES, but it's added to `now`
-    # (seconds since epoch) without converting to seconds first. The token
-    # ends up expiring in 30 *seconds* instead of 30 *minutes*.
-    expires_at = now + TOKEN_LIFETIME_MINUTES
+    # Corrected bug: convert TOKEN_LIFETIME_MINUTES to seconds before adding to now
+    expires_at = now + TOKEN_LIFETIME_MINUTES * 60
     user["token_issued_at"] = now
     user["token_expires_at"] = expires_at
     return f"token-{email}-{int(expires_at)}"
